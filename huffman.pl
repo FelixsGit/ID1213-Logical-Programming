@@ -1,5 +1,5 @@
 /*Calling predicate with a string example: "hello" will huffman encode the string.*/
-huffman(Msg,Msg,SortedFrequencyList,Tree,Table,Bitsequence,DMsg):-
+huffman(Msg):-
     atom_chars(Msg,ListOfChars),
     frequency(ListOfChars,[],FrequencyList),
     sortByFreq(FrequencyList,[],SortedFrequencyList),
@@ -7,7 +7,14 @@ huffman(Msg,Msg,SortedFrequencyList,Tree,Table,Bitsequence,DMsg):-
     encode_table(Tree,Table),
     encode(ListOfChars,Table,Bitsequence),
     decode(Bitsequence,Table,DecodedMsg),
-    atom_chars(DMsg,DecodedMsg).
+    atom_chars(Dmsg,DecodedMsg),
+    write("Message":Msg),nl,
+    write("FrequencyList":SortedFrequencyList),nl,
+    write("Tree":Tree),nl,
+    write("Table":Table),nl,
+    write("Bitsequence":Bitsequence),nl,
+    write("DecodedMessage":Dmsg).
+
 
 frequency([],FrequencyList,FrequencyList).
 frequency([Char|Rest],FrequencyList,Result):-
@@ -64,12 +71,12 @@ encode_table(Tree,Result):-
 tree_to_table([],_,Acc,Result):-
     Result = Acc.
 tree_to_table([Left,Right],Path,Acc,Result):-
-    append(Path,[0],AppendInnerLeftResult),
-    append(Path,[1],AppendInnerRightResult),
+    append2(Path,[0],AppendInnerLeftResult),
+    append2(Path,[1],AppendInnerRightResult),
     tree_to_table(Left,AppendInnerLeftResult,Acc,TreeToTableLeftResult),
     tree_to_table(Right,AppendInnerRightResult,Acc,TreeToTableRightResult),
-    append(TreeToTableLeftResult,TreeToTableRightResult,MiddleAppendResult),
-    append(MiddleAppendResult,Acc,Result).
+    append2(TreeToTableLeftResult,TreeToTableRightResult,MiddleAppendResult),
+    append2(MiddleAppendResult,Acc,Result).
 tree_to_table(Char,Path,_,Result):-
     Result = [[Char,Path]].
 
@@ -79,7 +86,7 @@ encode([],_,Result):-
 encode([Char|Rest],Table,Result):-
     encode_char(Char,Table,EncodeCharResult),
     encode(Rest,Table,EncodeResults),
-    append(EncodeCharResult,EncodeResults,Result).
+    append2(EncodeCharResult,EncodeResults,Result).
 encode_char(Char,[[Char,Path]|_],Result):-
     Result = Path.
 encode_char(Char,[[_,_]|Rest],Result):-
@@ -101,15 +108,29 @@ decode_char(Seq,N,Table,Result,CharR,RestR):-
 
 split([],N,NewList,Result,Code,Rest):-
     length(NewList,LenghtOfNewList),
-    (LenghtOfNewList == N ->reverse(NewList,ReversedList),Result=true,Code=ReversedList,Rest=[]).
+    (LenghtOfNewList == N ->reverse2(NewList,ReversedList),Result=true,Code=ReversedList,Rest=[]).
 split([Head|Tail],N,NewList,Result,Code,Rest):-
     length(NewList,LenghtOfNewList),
-    (LenghtOfNewList == N ->reverse(NewList,ReversedList),Result=true,Code=ReversedList,Rest=[Head|Tail];
+    (LenghtOfNewList == N ->reverse2(NewList,ReversedList),Result=true,Code=ReversedList,Rest=[Head|Tail];
     split(Tail,N,[Head|NewList],Result,Code,Rest)).
 
 keyFind([],_,Result,_):-Result=false.
 keyFind([[Char,Seq]|Rest],Code,Result,Item):-
     (Seq == Code ->Result=true,Item=Char;
           keyFind(Rest,Code,Result,Item)).
+
+
+append2(L1,L2,Result):-
+    reverse2(L1,RevResult),
+    append2Helper(RevResult,L2,Result).
+append2Helper([],AppResult,AppResult).
+append2Helper([H|T],Acc,AppResult):-
+    append2Helper(T,[H|Acc],AppResult).
+
+reverse2(L,Result):-
+    reverse2Helper(L,[],Result).
+reverse2Helper([],RevResults,RevResults).
+reverse2Helper([H|T],Acc,RevResults):-
+    reverse2Helper(T,[H|Acc],RevResults).
 
 
