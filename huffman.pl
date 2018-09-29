@@ -107,10 +107,10 @@ decode_char(Seq,N,Table,Result,CharR,RestR):-
     NewN is N + 1,decode_char(Seq,NewN,Table,Result,CharR,RestR))).
 
 split([],N,NewList,Result,Code,Rest):-
-    length(NewList,LenghtOfNewList),
+    lenght2(NewList,LenghtOfNewList),
     (LenghtOfNewList == N ->reverse2(NewList,ReversedList),Result=true,Code=ReversedList,Rest=[]).
 split([Head|Tail],N,NewList,Result,Code,Rest):-
-    length(NewList,LenghtOfNewList),
+    lenght2(NewList,LenghtOfNewList),
     (LenghtOfNewList == N ->reverse2(NewList,ReversedList),Result=true,Code=ReversedList,Rest=[Head|Tail];
     split(Tail,N,[Head|NewList],Result,Code,Rest)).
 
@@ -132,5 +132,13 @@ reverse2(L,Result):-
 reverse2Helper([],RevResults,RevResults).
 reverse2Helper([H|T],Acc,RevResults):-
     reverse2Helper(T,[H|Acc],RevResults).
+
+lenght2(L,Result):-
+    lenght2Helper(L,0,Result).
+lenght2Helper([],Result,Result).
+lenght2Helper([_|T],Lenght,Result):-
+    NewLenght is Lenght + 1,
+    lenght2Helper(T,NewLenght,Result).
+
 
 
