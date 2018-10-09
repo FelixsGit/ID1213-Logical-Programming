@@ -1,4 +1,7 @@
-/*Calling predicate with a string example: "hello" will huffman encode the string.*/
+/*This file contains a complete huffman encoder and decoder
+ * with outputs printed to the console.*/
+
+/*Call this function to run the program*/
 huffman(Msg):-
     atom_chars(Msg,ListOfChars),
     frequency(ListOfChars,[],FrequencyList),
@@ -15,12 +18,13 @@ huffman(Msg):-
     write("Bitsequence":Bitsequence),nl,
     write("DecodedMessage":Dmsg).
 
-
+/*This function saves the each char with its frequency in a list*/
 frequency([],FrequencyList,FrequencyList).
 frequency([Char|Rest],FrequencyList,Result):-
      update(FrequencyList,Char,UpdatedList),
      frequency(Rest,UpdatedList,Result).
 
+/*This function places a the char into a the list and returns the updated list*/
 update([],Char,Result):-
     Result = [[Char,1]].
 update([[Char,Freq]|Rest],Char,Result):-
@@ -30,20 +34,22 @@ update([Head|Rest],Char,Result):-
     update(Rest,Char,NewResults),
     Result = [Head|NewResults].
 
+/*This function sorts the entered frequncy list*/
 sortByFreq([],SortedFrequencyList,SortedFrequencyList).
 sortByFreq([Head|Rest],SortedFrequencyList,Result):-
     findBiggestElem([Head|Rest],ElemToAdd,SortedFrequencyList),
     delete3(ElemToAdd,[Head|Rest],[],UpdatedList),
     sortByFreq(UpdatedList,[ElemToAdd|SortedFrequencyList],Result).
 
+/*This function find the biggest frequncy in a frequncy list*/
 findBiggestElem([[Head,Freq]|T], Y,SortedFrequencyList):-
     findBiggestElemH(T,[Head,Freq],Y,SortedFrequencyList).
-
 findBiggestElemH([[Head,Freq]|T],[HHead,HFreq],Highest,SortedFrequencyList):-
     (Freq > HFreq ->findBiggestElemH(T,[Head,Freq], Highest,SortedFrequencyList);
     findBiggestElemH(T,[HHead,HFreq],Highest,SortedFrequencyList)).
 findBiggestElemH([],X,X,_).
 
+/*This function deletes the entered element and returns the updated list*/
 delete3(_,[],Result,Result).
 delete3(X,[H|T],OKList,Result):-
     (X \= H ->delete3(X,T,[H|OKList],Result);
@@ -66,6 +72,7 @@ insert([C,F],[[CH,FH]|T],Result):-
 insert([C,F],[],Result):-
      Result = [[C,F]].
 
+/*These functions transform a given huffman tree into an huffman table*/
 encode_table(Tree,Result):-
     tree_to_table(Tree,[],[],Result).
 tree_to_table([],_,Acc,Result):-
@@ -80,7 +87,7 @@ tree_to_table([Left,Right],Path,Acc,Result):-
 tree_to_table(Char,Path,_,Result):-
     Result = [[Char,Path]].
 
-
+/*This function encodes the given huffman table into a list containing the tables bitsequence*/
 encode([],_,Result):-
     Result = [].
 encode([Char|Rest],Table,Result):-
@@ -93,6 +100,7 @@ encode_char(Char,[[_,_]|Rest],Result):-
     encode_char(Char,Rest,Result).
 
 
+/*This function decodes a bitsequency by using the entered huffman table and returning the decoded message*/
 decode([],_,Result):-
     Result = [].
 decode(Seq,Table,Result):-
@@ -106,6 +114,7 @@ decode_char(Seq,N,Table,Result,CharR,RestR):-
            (KeyFindResult->Result=true,CharR=Char,RestR=Rest;
     NewN is N + 1,decode_char(Seq,NewN,Table,Result,CharR,RestR))).
 
+/*This function splits a list and returns a list with the first N elements from the entered list.*/
 split([],N,NewList,Result,Code,Rest):-
     lenght2(NewList,LenghtOfNewList),
     (LenghtOfNewList == N ->reverse2(NewList,ReversedList),Result=true,Code=ReversedList,Rest=[]).
@@ -114,12 +123,13 @@ split([Head|Tail],N,NewList,Result,Code,Rest):-
     (LenghtOfNewList == N ->reverse2(NewList,ReversedList),Result=true,Code=ReversedList,Rest=[Head|Tail];
     split(Tail,N,[Head|NewList],Result,Code,Rest)).
 
+/*This function returns a Char from a huffman table that has a bitsequence that match the entered Code*/
 keyFind([],_,Result,_):-Result=false.
 keyFind([[Char,Seq]|Rest],Code,Result,Item):-
     (Seq == Code ->Result=true,Item=Char;
           keyFind(Rest,Code,Result,Item)).
 
-
+/*This function returns a single list containing the entered two list*/
 append2(L1,L2,Result):-
     reverse2(L1,RevResult),
     append2Helper(RevResult,L2,Result).
@@ -127,18 +137,17 @@ append2Helper([],AppResult,AppResult).
 append2Helper([H|T],Acc,AppResult):-
     append2Helper(T,[H|Acc],AppResult).
 
+/*This function returns the entered list reversed*/
 reverse2(L,Result):-
     reverse2Helper(L,[],Result).
 reverse2Helper([],RevResults,RevResults).
 reverse2Helper([H|T],Acc,RevResults):-
     reverse2Helper(T,[H|Acc],RevResults).
 
+/*This function return the length of the entered list*/
 lenght2(L,Result):-
     lenght2Helper(L,0,Result).
 lenght2Helper([],Result,Result).
 lenght2Helper([_|T],Lenght,Result):-
     NewLenght is Lenght + 1,
     lenght2Helper(T,NewLenght,Result).
-
-
-
